@@ -20,18 +20,7 @@ class BoidFlockers(Model):
     Flocker model class. Handles agent creation, placement and scheduling.
     """
 
-    def __init__(
-        self,
-        population: int = 100,
-        width: int = 100,
-        height: int = 100,
-        speed: float = 1,
-        vision: float = 10,
-        separation: float = 2,
-        cohere: float = 0.025,
-        separate: float = 0.25,
-        match: float = 0.04,
-    ) -> None:
+    def __init__(self, params) -> None:
         """
         Create a new Flockers model.
 
@@ -43,23 +32,28 @@ class BoidFlockers(Model):
             separation: What's the minimum distance each Boid will attempt to
                     keep from any other
             cohere, separate, match: factors for the relative importance of
-                    the three drives.        """
+                    the three drives."""
 
-        self.width = width
-        self.height = height
+        params_m = params["model"]
+        self.width = params_m["width"]
+        self.height = params_m["height"]
         self.agent_pos_lst = None
         self.agent_vision_lst = None
         self.fig = None
         self.ax = None
         self.text = None
 
-        self.population = population
-        self.vision = vision
-        self.speed = speed
-        self.separation = separation
+        self.population = params_m["population"]
+        self.vision = params_m["vision"]
+        self.speed = params_m["speed"]
+        self.separation = params_m["separation"]
         self.schedule = RandomActivation(self)
-        self.space = ContinuousSpace(width, height, True)
-        self.factors = dict(cohere=cohere, separate=separate, match=match)
+        self.space = ContinuousSpace(self.width, self.height, True)
+        self.factors = dict(
+            cohere=params_m["cohere"],
+            separate=params_m["separate"],
+            match=params_m["match"],
+        )
         self.make_agents()
         self.running = True
 
@@ -116,7 +110,7 @@ class BoidFlockers(Model):
         ax.set_ylim(0, self.height)
         ax.set_aspect("equal")
 
-    def draw_succesive(self) -> None:
+    def draw_successive(self) -> None:
         self.text.set_text(f"t={self.schedule.time:03d}")
         for agent in self.schedule.agents:
             self.agent_pos_lst[agent.unique_id].set_offsets(agent.pos)
